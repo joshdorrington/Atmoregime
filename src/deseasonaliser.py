@@ -10,7 +10,21 @@ import cftime
 from util import xarr_times_to_ints
 
 class Agg_Deseasonaliser(object):
+    """
+    Computes a seasonal cycle from an xarray dataset based on an aggregation
+    criteria i.e. month, day of year, week of year etc.
+    ----------
+    Methods
+    -------
+    fit_cycle(DataArray,dim=str,agg=str): Aggregates the input DataArray arr.
 
+    evaluate_cycle(data=DataArray): When data is None, creates a seasonal cycle
+    DataArray the same shape as the input data used in fit_cycle. data can be
+    a DataArray with a differing dim coordinate, but matching other coordinates.
+    This can be used to fit a seasonal cycle on one dataset, but evaluate it on
+    another, as long as the grid, levels, etc are the same.
+    Returns The seasonal cycle as a DataArray
+    """
     def __init__(self):
         self.data=None
         self.cycle_coeffs=None
@@ -31,7 +45,20 @@ class Agg_Deseasonaliser(object):
 
 class Sinefit_Deseasonaliser(Agg_Deseasonaliser):
 
+    """
+    Same functionalityy as Agg_Deseasonaliser but fits a number of sin modes
+    to the data using least squares fitting. This produces a smoother cycle than
+    aggregating but can be slow for large datasets.
+    ----------
+    Methods
+    -------
+    fit_cycle(DataArray,dim=str,N=int,period=float): N sets the number of sin modes
+    to fit as fractions of the period. i.e. the default of N=4 fits waves with
+    periods of period, period/2, period/3 and period/4. period is a float setting
+    the length of a year in days.
 
+    evaluate_cycle(data=DataArray): As for Agg_Deseasonaliser
+    """
     def _func_residual(self,p,x,t,N,period):
         return x - self._evaluate_fit(t,p,N,period)
 

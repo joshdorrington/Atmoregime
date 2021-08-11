@@ -8,7 +8,39 @@ import cftime
 from deseasonaliser import Agg_Deseasonaliser, Sinefit_Deseasonaliser
 
 class Preprocessor(object):
+    """
+    Handles the initial processing of datasets. All functionality can be used for
+    a single input dataset or a dict of datasets, which will be either xarray
+    DataArrays or iris Cubes, and will be converted to DataArrays on loading.
+    ----------
+    Methods
+    -------
+    align(data_keys=None,**kwargs): A wrapper around xarray.align that applies
+    to the datasets specified by data_keys, or to all datasets if data_keys is None.
+    kwargs pass directly to xarray.align.
 
+    subset(coords,coord_bounds,data_keys=None): coords takes a list of N
+    strings specifying coords to be subsetted. coord_bounds is a Nx2 list of
+    numerical data which specifies the lower and upper bounds (inclusively)
+     for each coord.
+
+    squeeze(data_keys=None): wrapper round xarray.squeeze
+    detrend(self,data_keys=None,dim="time",deg=1): wrapper round xarray.polyfit
+    and polyval which removes a polynomial trend from the given data_keys.
+
+    fit_seasonal_cycle(data_keys=None,deseasonaliser=Agg_Deseasonaliser,
+    **ds_kwargs): Calculates coeffs needed to evaluate seasonal cycles
+     given an input time coordinate.
+
+    evaluate_seasonal_cycle(data_key=None): Returns a seasonal cycle
+     DataArray for the given DataArray
+
+    deseasonalise(data_keys=None,cycle=None,compute_cycle=True): By default
+     removes the seasonal cycle of every dataset from itself, using
+    default kwargs of evaluate_seasonal_cycle if the cycle has not been computed.
+    If compute_cycle=False will instead return error if cycle does not exist.
+    If cycle is a single value then that cycle will be removed from all data_keys.
+    """
     def __init__(self,data,id="unnamed"):
 
         self.id=id
